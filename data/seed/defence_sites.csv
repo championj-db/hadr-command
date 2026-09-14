@@ -1,0 +1,9 @@
+site_id,name,branch,site_type,lat,lon,on_map,notes
+HMAS_CAIRNS,HMAS Cairns,Navy,Naval Base,-16.9360,145.7783,true,"Patrol boat & hydrographic base on Trinity Inlet; landing-craft and small-boat staging for FNQ HADR"
+PORTON_BKS,Porton Barracks,Army,Barracks,-16.9440,145.7710,true,"51st Bn Far North Queensland Regiment (51 FNQR) HQ depot, Portsmith Cairns; coordinate approximate (exact location not publicly published)"
+CAIRNS_HOSP_HELI,Cairns Hospital Helipad,Health/Staging,Helipad,-16.9203,145.7690,true,"Cairns Base Hospital rooftop helipad; aeromedical staging point"
+LAVARACK_BKS,Lavarack Barracks,Army,Barracks,-19.3300,146.7951,true,"3rd Brigade (3 CSSB) and supporting units, Townsville; primary Army force-generation base for FNQ"
+RAAF_TOWNSVILLE,RAAF Base Townsville,Air Force,Air Base,-19.2452,146.7627,true,"35 SQN C-27J detachment / rotary support; co-located Townsville Airport; key fixed-wing staging base"
+RAAF_SCHERGER,RAAF Base Scherger,Air Force,Bare Base,-12.6558,142.0858,true,"Bare base near Weipa (Cape York); forward operating / dispersal option for Gulf & FNQ operations"
+JTF664_HQ,JTF 664 HQ,Joint,Headquarters,-19.2590,146.8180,true,"Joint Task Force 664 headquarters (stood up Dec 2023), Townsville; ADF HADR command element"
+RAAF_AMBERLEY,RAAF Base Amberley,Air Force,Air Base,-27.6330,152.7120,false,"35/36 SQN home base (C-27J / C-17A); off-map strategic airlift origin for FNQ HADR sustainment"

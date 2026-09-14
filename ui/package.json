@@ -1,0 +1,40 @@
+{
+  "name": "ui",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@deck.gl/aggregation-layers": "^9.3.6",
+    "@deck.gl/core": "^9.3.6",
+    "@deck.gl/extensions": "^9.3.6",
+    "@deck.gl/geo-layers": "^9.3.6",
+    "@deck.gl/layers": "^9.3.6",
+    "@deck.gl/mesh-layers": "^9.3.6",
+    "@deck.gl/react": "^9.3.6",
+    "@fontsource/ibm-plex-mono": "^5.2.7",
+    "@fontsource/ibm-plex-sans": "^5.2.8",
+    "deck.gl": "^9.3.6",
+    "h3-js": "^4.5.0",
+    "maplibre-gl": "^5.24.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-map-gl": "^8.1.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.2",
+    "@types/node": "^24.13.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "oxlint": "^1.71.0",
+    "tailwindcss": "^4.3.2",
+    "typescript": "~6.0.2",
+    "vite": "^8.1.1"
+  }
+}

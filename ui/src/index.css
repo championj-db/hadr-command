@@ -1,0 +1,153 @@
+/* Self-hosted IBM Plex (no CDN) */
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-sans/700.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource/ibm-plex-mono/600.css';
+@import 'tailwindcss';
+
+/* ---- Design tokens: dark is the ops-room default ---- */
+:root,
+:root[data-theme='dark'] {
+  --bg: #0b0f14;
+  --surface: #131a22;
+  --surface-2: #1a232d;
+  --surface-3: #232f3b;
+  --border: #28323e;
+  --border-2: #3a4652;
+  --text: #e8eef4;
+  --text-2: #98a6b4;
+  --text-3: #63707d;
+  --accent: #5aa2e0;
+  --accent-2: #1d4a72;
+  --watch: #3f8ae0;
+  --warning: #f2a413;
+  --impact: #ee4b47;
+  --recovery: #37b96b;
+  --live: #ff4438;
+  --d-none: #7a8794;
+  --d-minor: #e8c02e;
+  --d-moderate: #f2851f;
+  --d-severe: #ee4b47;
+  --d-destroyed: #b32a86;
+  --road-open: #37b96b;
+  --road-caution: #f2a413;
+  --road-closed: #ee4b47;
+  --on-accent: #06121d;
+}
+
+:root[data-theme='light'] {
+  --bg: #e8ecf1;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --surface-3: #e2e8ef;
+  --border: #d3dbe4;
+  --border-2: #b6c1cd;
+  --text: #141c25;
+  --text-2: #4a5763;
+  --text-3: #78848f;
+  --accent: #1f6fb2;
+  --accent-2: #bcd6ec;
+  --watch: #2563c9;
+  --warning: #b26a06;
+  --impact: #d1332e;
+  --recovery: #158048;
+  --live: #e0201a;
+  --d-none: #8a97a3;
+  --d-minor: #b58a09;
+  --d-moderate: #d1651a;
+  --d-severe: #d1332e;
+  --d-destroyed: #9a1f73;
+  --road-open: #158048;
+  --road-caution: #b26a06;
+  --road-closed: #d1332e;
+  --on-accent: #ffffff;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Timestamps, coordinates, KPI figures */
+.mono {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Uppercase mono micro-label used for section headers */
+.micro {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* ---- Motion (tokens.motion only) ---- */
+@keyframes hadrLive {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+@keyframes hadrShimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+@keyframes hadrCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes hadrDrawerIn {
+  from {
+    transform: translateX(24px);
+    opacity: 0.4;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* deck.gl / maplibre canvas sits behind the floating chrome */
+.maplibregl-ctrl-attrib {
+  display: none;
+}

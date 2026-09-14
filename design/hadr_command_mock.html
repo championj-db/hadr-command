@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{color:var(--text)}
+  @keyframes hadrLive{0%,100%{opacity:1}50%{opacity:.25}}
+  @keyframes hadrShimmer{0%{background-position:-200px 0}100%{background-position:400px 0}}
+  @keyframes hadrCardIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes hadrDrawerIn{from{transform:translateX(24px);opacity:.4}to{transform:translateX(0);opacity:1}}
+  @keyframes hadrDash{to{stroke-dashoffset:-24}}
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px}
+  ::-webkit-scrollbar-track{background:transparent}
+</style>
+</helmet>
+<div style="{{ rootStyle }}">
+
+  <!-- CLASSIFICATION TOP -->
+  <div style="height:24px;flex:none;background:var(--surface-3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.34em;color:var(--text-2)">OFFICIAL</div>
+
+  <!-- TOP COMMAND BAR -->
+  <div style="height:56px;flex:none;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:18px;z-index:60">
+    <div style="display:flex;align-items:center;gap:10px;min-width:250px">
+      <div style="width:26px;height:26px;background:var(--impact);border-radius:3px;display:flex;align-items:center;justify-content:center;flex:none"><div style="width:11px;height:11px;border:2px solid #fff;border-radius:2px"></div></div>
+      <div style="line-height:1.05">
+        <div style="font-weight:700;font-size:15px;letter-spacing:.08em">HADR COMMAND</div>
+        <div style="font-size:10px;color:var(--text-3);letter-spacing:.04em">Disaster Response COP</div>
+      </div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:14px">
+      <div style="display:flex;align-items:center;gap:9px">
+        <span style="font-weight:600;font-size:14px;letter-spacing:.03em">TC JASPER</span>
+        <span style="color:var(--text-3);font-size:13px">—</span>
+        <span style="font-size:13px;color:var(--text-2);letter-spacing:.02em">Far North Queensland</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:5px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.12em;background:{{ phaseChipBg }}">
+        <span style="width:8px;height:8px;border-radius:50%;background:{{ phaseColor }}"></span>
+        <span style="color:{{ phaseColor }}">{{ phaseLabel }}</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:2px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.06em">
+        <button onClick="{{ setReplay }}" style="border:none;cursor:pointer;padding:5px 12px;border-radius:4px;font:inherit;background:{{ replayBg }};color:{{ replayFg }}">REPLAY</button>
+        <button onClick="{{ setLive }}" style="border:none;cursor:pointer;padding:5px 12px;border-radius:4px;font:inherit;display:flex;align-items:center;gap:6px;background:{{ liveBg }};color:{{ liveFg }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ liveDotBg }};animation:{{ liveDotAnim }}"></span>LIVE</button>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;color:var(--text);letter-spacing:.01em;min-width:236px;text-align:right;font-variant-numeric:tabular-nums">{{ clockStr }}</div>
+      <button onClick="{{ genSitrep }}" style="border:none;cursor:pointer;background:var(--impact);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.08em;padding:8px 14px;border-radius:6px" style-hover="filter:brightness(1.08)">GENERATE SITREP</button>
+      <button onClick="{{ toggleTheme }}" title="Toggle theme" style="border:1px solid var(--border);cursor:pointer;background:var(--surface-2);color:var(--text-2);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;padding:8px 10px;border-radius:6px;width:58px" style-hover="border-color:var(--border-2);color:var(--text)">{{ themeLabel }}</button>
+    </div>
+  </div>
+
+  <!-- MIDDLE -->
+  <div style="position:relative;flex:1;min-height:0;overflow:hidden">
+
+    <!-- MAP PLACEHOLDER -->
+    <div style="position:absolute;inset:0;background:radial-gradient(120% 90% at 62% 30%, #16303a 0%, #0e2029 38%, #0a1620 70%, #071019 100%)">
+      <div style="position:absolute;inset:0;background:radial-gradient(38% 46% at 30% 44%, rgba(28,54,42,.55) 0%, rgba(28,54,42,0) 70%),radial-gradient(30% 34% at 22% 70%, rgba(30,50,40,.5) 0%, rgba(0,0,0,0) 72%),radial-gradient(46% 60% at 78% 66%, rgba(10,26,38,.6) 0%, rgba(0,0,0,0) 70%)"></div>
+      <svg width="100%" height="100%" style="position:absolute;inset:0;opacity:.14" preserveAspectRatio="none"><defs><pattern id="grat" width="140" height="140" patternUnits="userSpaceOnUse"><path d="M140 0H0V140" fill="none" stroke="#7fa8c0" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#grat)"/></svg>
+      <svg width="100%" height="100%" viewBox="0 0 1920 1000" style="position:absolute;inset:0" preserveAspectRatio="xMidYMid slice">
+        <path d="M760 -20 C 720 140, 800 260, 740 380 C 690 480, 780 560, 720 680 C 670 780, 760 880, 700 1020" fill="none" stroke="rgba(120,168,192,.28)" stroke-width="2"/>
+        <path d="M760 -20 C 720 140, 800 260, 740 380 C 690 480, 780 560, 720 680 C 670 780, 760 880, 700 1020 L 0 1020 L 0 -20 Z" fill="rgba(26,50,38,.35)"/>
+      </svg>
+    </div>
+
+    <!-- MAP OVERLAY GRAPHICS -->
+    <div style="position:absolute;inset:0">
+      <svg width="100%" height="100%" viewBox="0 0 1920 1000" style="position:absolute;inset:0" preserveAspectRatio="xMidYMid slice">
+        <g style="display:{{ trackDisp }}">
+          <path d="M980 60 C 940 220, 900 360, 900 480 L 1180 480 C 1180 360, 1180 220, 1120 60 Z" fill="rgba(238,75,71,.10)" stroke="rgba(238,75,71,.35)" stroke-width="1.5" stroke-dasharray="5 5"/>
+          <path d="M1360 40 C 1220 170, 1120 300, 1010 470 C 960 550, 940 600, 905 640" fill="none" stroke="var(--impact)" stroke-width="3" stroke-dasharray="10 9" style="animation:hadrDash 1.2s linear infinite"/>
+          <circle cx="1360" cy="40" r="5" fill="var(--warning)"/><circle cx="1230" cy="165" r="5" fill="var(--warning)"/><circle cx="1120" cy="300" r="5.5" fill="var(--impact)"/><circle cx="1010" cy="470" r="6" fill="var(--impact)"/>
+        </g>
+        <g transform="translate(905 640)" style="display:{{ windDisp }}">
+          <circle r="70" fill="rgba(139,127,214,.05)" stroke="rgba(139,127,214,.28)" stroke-width="1"/>
+          <circle r="46" fill="rgba(139,127,214,.08)" stroke="rgba(139,127,214,.35)" stroke-width="1"/>
+          <circle r="24" fill="rgba(139,127,214,.14)" stroke="rgba(139,127,214,.5)" stroke-width="1"/>
+          <path d="M0 0 C 20 -14, 40 -8, 44 12 M0 0 C -20 14, -40 8, -44 -12" fill="none" stroke="rgba(160,150,225,.6)" stroke-width="2"/>
+        </g>
+        <path style="display:{{ floodDisp }}" d="M820 700 C 900 680, 980 720, 1030 700 C 1090 760, 1040 830, 960 850 C 880 872, 800 840, 790 780 C 786 748, 796 712, 820 700 Z" fill="rgba(47,128,237,.22)" stroke="rgba(90,162,224,.7)" stroke-width="1.5"/>
+      </svg>
+      <div style="display:{{ damageDisp }}">
+        <div style="position:absolute;left:47%;top:66%;width:14px;height:14px;background:var(--d-severe);opacity:.85;transform:rotate(45deg)"></div>
+        <div style="position:absolute;left:49.5%;top:64%;width:12px;height:12px;background:var(--d-destroyed);opacity:.8;transform:rotate(45deg)"></div>
+        <div style="position:absolute;left:45%;top:69%;width:12px;height:12px;background:var(--d-moderate);opacity:.8;transform:rotate(45deg)"></div>
+        <div style="position:absolute;left:51%;top:68%;width:11px;height:11px;background:var(--d-minor);opacity:.8;transform:rotate(45deg)"></div>
+      </div>
+      <svg width="100%" height="100%" viewBox="0 0 1920 1000" style="position:absolute;inset:0;display:{{ roadsDisp }}" preserveAspectRatio="xMidYMid slice">
+        <path d="M870 560 L 1030 600 L 1180 560" fill="none" stroke="var(--road-closed)" stroke-width="3" stroke-dasharray="9 7"/>
+        <path d="M905 640 L 760 720" fill="none" stroke="var(--road-closed)" stroke-width="3" stroke-dasharray="9 7"/>
+      </svg>
+    </div>
+
+    <!-- MAP FEATURE MARKERS -->
+    <button onClick="{{ openBase }}" style="position:absolute;left:47.2%;top:63.8%;transform:translate(-50%,-50%);border:none;background:none;cursor:pointer;display:{{ basesDisp }};flex-direction:column;align-items:center;gap:3px;z-index:20">
+      <span style="width:24px;height:24px;border-radius:50%;background:var(--surface);border:2px solid var(--text);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text)">⚓</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;color:#fff;background:rgba(0,0,0,.55);padding:1px 5px;border-radius:3px;white-space:nowrap">HMAS CAIRNS</span>
+    </button>
+    <button onClick="{{ openAirport }}" style="position:absolute;left:49.5%;top:57%;transform:translate(-50%,-50%);border:none;background:none;cursor:pointer;display:{{ airportsDisp }};flex-direction:column;align-items:center;gap:3px;z-index:20">
+      <span style="width:26px;height:26px;border-radius:5px;background:var(--surface);border:2px solid {{ apRingColor }};display:flex;align-items:center;justify-content:center;font-size:13px;color:{{ apGlyphColor }}">✈</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;color:#fff;background:rgba(0,0,0,.55);padding:1px 5px;border-radius:3px;white-space:nowrap">YBCS</span>
+    </button>
+    <button onClick="{{ openBuilding }}" style="position:absolute;left:48.5%;top:67%;transform:translate(-50%,-50%);border:none;background:none;cursor:pointer;z-index:19;display:{{ damageDisp }}" title="Damaged structure"><span style="width:16px;height:16px;background:var(--d-severe);border:1.5px solid #fff;transform:rotate(45deg);display:block"></span></button>
+    <button onClick="{{ openRoad }}" style="position:absolute;left:41%;top:71.5%;transform:translate(-50%,-50%);border:none;background:none;cursor:pointer;z-index:19;display:{{ roadsDisp }}" title="Road event"><span style="display:block;width:16px;height:16px;border-radius:50%;background:var(--road-closed);border:2px solid #fff"></span></button>
+
+    <!-- LEFT PANEL -->
+    <sc-if value="{{ leftExpanded }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;left:12px;top:12px;bottom:12px;width:300px;background:var(--surface);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;z-index:40;overflow:hidden">
+      <div style="height:40px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 14px;border-bottom:1px solid var(--border)">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.16em;color:var(--text-2)">LAYERS</span>
+        <button onClick="{{ toggleLeft }}" style="border:none;background:none;cursor:pointer;color:var(--text-3);font-size:15px;padding:2px 4px" style-hover="color:var(--text)" title="Collapse">‹</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:6px 0">
+        <sc-for list="{{ layerGroups }}" as="grp" hint-placeholder-count="4">
+          <div style="padding:10px 14px 4px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:.16em;color:var(--text-3);margin-bottom:2px">{{ grp.name }}</div>
+          </div>
+          <sc-for list="{{ grp.items }}" as="ly" hint-placeholder-count="3">
+            <button onClick="{{ ly.onToggle }}" style="width:100%;border:none;background:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:7px 14px;text-align:left" style-hover="background:var(--surface-2)">
+              <span style="width:13px;height:13px;border-radius:3px;flex:none;background:{{ ly.swatchBg }};border:{{ ly.swatchBorder }}"></span>
+              <span style="flex:1;font-size:12.5px;color:var(--text)">{{ ly.label }}</span>
+              <span style="width:28px;height:16px;border-radius:9px;position:relative;flex:none;transition:background .15s;background:{{ ly.trackBg }}"><span style="position:absolute;top:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:left .15s;left:{{ ly.knobLeft }}"></span></span>
+            </button>
+          </sc-for>
+        </sc-for>
+      </div>
+      <div style="flex:none;border-top:1px solid var(--border);padding:10px 14px;display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;gap:6px">
+          <button onClick="{{ setSatellite }}" style="flex:1;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;padding:6px;border-radius:5px;background:{{ satBg }};color:{{ satFg }};border:1px solid {{ satBc }}">SATELLITE</button>
+          <button onClick="{{ setDarkmap }}" style="flex:1;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.06em;padding:6px;border-radius:5px;background:{{ darkBg }};color:{{ darkFg }};border:1px solid {{ darkBc }}">DARK</button>
+          <button onClick="{{ togglePitch }}" style="flex:none;width:46px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:6px;border-radius:5px;background:var(--surface-2);color:var(--text);border:1px solid var(--border)">{{ pitchLabel }}</button>
+        </div>
+        <div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.16em;color:var(--text-3);margin-bottom:5px">VIEW PRESETS</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px">
+            <sc-for list="{{ presets }}" as="p" hint-placeholder-count="4">
+              <button onClick="{{ p.onClick }}" style="cursor:pointer;font-size:11px;padding:4px 9px;border-radius:12px;background:{{ p.bg }};color:{{ p.fg }};border:1px solid {{ p.bc }}" style-hover="border-color:var(--accent)">{{ p.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+    <sc-if value="{{ leftCollapsed }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:12px;top:12px;bottom:12px;width:46px;background:var(--surface);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;padding-top:8px;gap:4px;z-index:40">
+      <button onClick="{{ toggleLeft }}" style="border:none;background:none;cursor:pointer;color:var(--text-2);font-size:16px;padding:6px" style-hover="color:var(--text)" title="Expand layers">☰</button>
+      <div style="width:24px;height:1px;background:var(--border);margin:2px 0"></div>
+      <sc-for list="{{ railGlyphs }}" as="g" hint-placeholder-count="4">
+        <div style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--text-3)" title="{{ g.name }}">{{ g.abbr }}</div>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <!-- RIGHT PANEL -->
+    <div style="position:absolute;right:12px;top:12px;bottom:12px;width:360px;display:flex;flex-direction:column;gap:10px;z-index:40">
+      <!-- KPI -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;flex:none">
+        <button onClick="{{ toggleKpi }}" style="width:100%;height:36px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 14px" style-hover="background:var(--surface-2)">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.16em;color:var(--text-2)">SITUATION SNAPSHOT</span>
+          <span style="color:var(--text-3);font-size:12px">{{ kpiChevron }}</span>
+        </button>
+        <sc-if value="{{ kpiOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border-top:1px solid var(--border)">
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="6">
+            <div style="background:var(--surface);padding:10px 11px 11px">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:{{ k.numColor }}">{{ k.num }}</div>
+              <div style="font-size:9.5px;color:var(--text-3);letter-spacing:.06em;text-transform:uppercase;margin-top:5px;line-height:1.25">{{ k.label }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;margin-top:3px;color:{{ k.deltaColor }}">{{ k.delta }}</div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+      </div>
+      <!-- Readiness -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:0">
+        <button onClick="{{ toggleReady }}" style="width:100%;height:36px;flex:none;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 14px" style-hover="background:var(--surface-2)">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.16em;color:var(--text-2)">FORCE READINESS</span>
+          <span style="display:flex;align-items:center;gap:8px"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--recovery)">6/8 READY</span><span style="color:var(--text-3);font-size:12px">{{ readyChevron }}</span></span>
+        </button>
+        <sc-if value="{{ readyOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="border-top:1px solid var(--border);overflow-y:auto;max-height:250px">
+          <sc-for list="{{ units }}" as="u" hint-placeholder-count="8">
+            <div style="padding:9px 14px;border-bottom:1px solid var(--border)" style-hover="background:var(--surface-2)">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
+                <span style="font-size:12.5px;font-weight:600;color:var(--text)">{{ u.name }}</span>
+                <span style="display:flex;align-items:center;gap:5px;flex:none"><span style="width:6px;height:6px;border-radius:50%;background:{{ u.postureDot }}"></span><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.08em;color:var(--text-2)">{{ u.posture }}</span></span>
+              </div>
+              <div style="font-size:10.5px;color:var(--text-3);margin-top:1px">{{ u.base }}</div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+                <div style="flex:1;height:5px;background:var(--surface-3);border-radius:3px;overflow:hidden"><div style="height:100%;border-radius:3px;width:{{ u.barW }};background:{{ u.barBg }}"></div></div>
+                <span style="font-family:'IBM Plex Mono',monospace;font-weight:600;min-width:34px;text-align:right;font-variant-numeric:tabular-nums;color:{{ u.pctColor }};font-size:{{ u.pctSize }}">{{ u.pctLabel }}</span>
+              </div>
+              <div style="font-size:10.5px;color:var(--text-2);margin-top:5px;font-style:italic">{{ u.constraint }}</div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+      </div>
+      <!-- Alerts -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:0">
+        <button onClick="{{ toggleAlerts }}" style="width:100%;height:36px;flex:none;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 14px" style-hover="background:var(--surface-2)">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.16em;color:var(--text-2)">ALERT FEED</span>
+          <span style="display:flex;align-items:center;gap:8px"><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;color:#fff;background:var(--impact);padding:2px 6px;border-radius:9px">7 ACTIVE</span><span style="color:var(--text-3);font-size:12px">{{ alertsChevron }}</span></span>
+        </button>
+        <sc-if value="{{ alertsOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="border-top:1px solid var(--border);overflow-y:auto;flex:1;min-height:0">
+          <sc-for list="{{ alerts }}" as="a" hint-placeholder-count="5">
+            <div style="display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);background:{{ a.rowBg }};border-left:{{ a.rowBorder }}">
+              <span style="width:16px;height:16px;flex:none;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:12px;color:{{ a.glyphColor }}">{{ a.glyph }}</span>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:2px">
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:600;letter-spacing:.06em;padding:1px 5px;border-radius:3px;background:{{ a.srcBg }};color:{{ a.srcColor }}">{{ a.source }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-3);font-variant-numeric:tabular-nums">{{ a.time }}</span>
+                </div>
+                <div style="font-size:12px;line-height:1.35;color:{{ a.headlineColor }}">{{ a.headline }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <!-- FLOATING CONTROLS -->
+    <div style="position:absolute;left:324px;bottom:118px;display:flex;flex-wrap:wrap;gap:6px;max-width:420px;z-index:35">
+      <sc-for list="{{ legendChips }}" as="c" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:4px 9px">
+          <span style="width:11px;height:11px;border-radius:2px;background:{{ c.bg }};border:{{ c.border }}"></span>
+          <span style="font-size:10.5px;color:var(--text-2)">{{ c.label }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="position:absolute;left:324px;bottom:98px;display:flex;align-items:center;gap:7px;z-index:35;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--text-2)">
+      <div style="width:70px;height:5px;border:1px solid var(--text-2);border-top:none;position:relative"><div style="position:absolute;left:0;top:-1px;width:35px;height:5px;background:var(--text-2)"></div></div>
+      <span>0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20 km</span>
+    </div>
+    <div style="position:absolute;right:384px;bottom:98px;display:flex;flex-direction:column;gap:6px;align-items:center;z-index:35">
+      <div style="width:38px;height:38px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--text-2);position:relative"><span style="position:absolute;top:3px;color:var(--impact);font-size:9px">N</span>▲</div>
+      <div style="display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden">
+        <button style="border:none;border-bottom:1px solid var(--border);background:none;cursor:pointer;color:var(--text);width:36px;height:32px;font-size:16px" style-hover="background:var(--surface-2)">+</button>
+        <button style="border:none;background:none;cursor:pointer;color:var(--text);width:36px;height:32px;font-size:16px" style-hover="background:var(--surface-2)">−</button>
+      </div>
+    </div>
+
+    <!-- SCRUBBER -->
+    <sc-if value="{{ isReplay }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;left:324px;right:384px;bottom:14px;height:78px;background:var(--surface);border:1px solid var(--border);border-radius:8px;z-index:38;display:flex;align-items:center;padding:0 16px;gap:16px">
+      <button onClick="{{ togglePlay }}" style="width:38px;height:38px;flex:none;border-radius:50%;border:none;cursor:pointer;background:var(--accent);color:#06121d;font-size:15px;display:flex;align-items:center;justify-content:center" style-hover="filter:brightness(1.1)">{{ playGlyph }}</button>
+      <button onClick="{{ cycleSpeed }}" style="flex:none;border:1px solid var(--border);cursor:pointer;background:var(--surface-2);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;padding:7px 10px;border-radius:6px;min-width:44px" style-hover="border-color:var(--border-2)">{{ speedLabel }}</button>
+      <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-3);letter-spacing:.04em">
+          <span>5 DEC</span><span>APPROACH</span><span>LANDFALL</span><span>FLOOD</span><span>RECOVERY</span><span>18 DEC</span>
+        </div>
+        <div ref="{{ timelineRef }}" onPointerDown="{{ onTimelineDown }}" style="position:relative;height:26px;cursor:pointer;border-radius:5px">
+          <div style="position:absolute;inset:0;display:flex;border-radius:5px;overflow:hidden">
+            <div style="width:42.9%;background:var(--watch);opacity:.45"></div>
+            <div style="width:14.3%;background:var(--warning);opacity:.5"></div>
+            <div style="width:35.7%;background:var(--impact);opacity:.5"></div>
+            <div style="width:7.1%;background:var(--recovery);opacity:.5"></div>
+          </div>
+          <sc-for list="{{ events }}" as="e" hint-placeholder-count="4">
+            <button onClick="{{ e.onClick }}" title="{{ e.label }}" style="position:absolute;top:-3px;transform:translateX(-50%);border:none;background:none;cursor:pointer;z-index:3;color:#fff;font-size:11px;line-height:1;left:{{ e.left }}">⚑</button>
+          </sc-for>
+          <div style="position:absolute;top:-6px;bottom:-6px;width:2px;background:#fff;z-index:4;pointer-events:none;left:{{ playheadLeft }}"><div style="position:absolute;top:-4px;left:-5px;width:12px;height:12px;background:#fff;border-radius:50%;border:2px solid var(--accent)"></div></div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+    <sc-if value="{{ isLive }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:324px;right:384px;bottom:14px;height:34px;background:var(--surface);border:1px solid var(--border);border-radius:8px;z-index:38;display:flex;align-items:center;padding:0 16px;gap:10px">
+      <span style="width:9px;height:9px;border-radius:50%;background:var(--live);animation:hadrLive 1s ease-in-out infinite"></span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--live)">LIVE</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-2)">— feeds real-time · last updated 06:04 AEST · BOM · QLDTraffic · Defence GEOINT</span>
+    </div>
+    </sc-if>
+
+    <!-- CLICK-CARDS -->
+    <sc-if value="{{ showAirport }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:52%;top:16%;width:412px;background:var(--surface);border:1px solid var(--border-2);border-radius:9px;z-index:55;box-shadow:0 12px 32px -8px rgba(0,0,0,.6);animation:hadrCardIn .18s ease-out;overflow:hidden">
+      <div style="border-top:3px solid {{ apAccentColor }}"></div>
+      <div style="padding:14px 16px 16px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+          <div>
+            <div style="font-size:16px;font-weight:700;letter-spacing:.01em">YBCS — Cairns International</div>
+            <div style="font-size:11px;color:var(--text-3);margin-top:2px;font-family:'IBM Plex Mono',monospace">-16.8858°, 145.7553°</div>
+          </div>
+          <button onClick="{{ closeCard }}" style="border:none;background:none;cursor:pointer;color:var(--text-3);font-size:16px;line-height:1;padding:2px 4px" style-hover="color:var(--text)">✕</button>
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:7px;margin-top:11px;padding:6px 11px;border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;letter-spacing:.06em;background:{{ apBadgeBg }};color:{{ apBadgeColor }}">
+          <span style="width:8px;height:8px;border-radius:50%;background:{{ apBadgeColor }}"></span>{{ apBadgeText }}
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-2);margin-top:12px;padding-top:12px;border-top:1px solid var(--border);letter-spacing:.02em">RWY 15/33 · 3,196 m · asphalt · lighted</div>
+        <div style="margin-top:12px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:.14em;color:var(--text-3);margin-bottom:7px">SUITABILITY — GO / NO-GO</div>
+          <sc-for list="{{ aircraft }}" as="ac" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:4px;background:var(--surface-2)">
+              <span style="flex:1;font-size:12.5px;font-weight:600">{{ ac.name }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-3);font-variant-numeric:tabular-nums">req {{ ac.req }}</span>
+              <span style="width:20px;height:20px;flex:none;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:{{ ac.glyphBg }};color:{{ ac.glyphColor }}">{{ ac.glyph }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:11px;padding:9px 11px;background:var(--surface-2);border-radius:6px;font-size:11.5px;color:var(--text-2);display:flex;align-items:center;gap:7px">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--recovery);flex:none"></span>YBTL Townsville <b style="color:var(--recovery);font-weight:600">&nbsp;OPEN&nbsp;</b> — designated staging base
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ showBase }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:30%;top:44%;width:280px;background:var(--surface);border:1px solid var(--border-2);border-radius:9px;z-index:55;box-shadow:0 12px 32px -8px rgba(0,0,0,.6);animation:hadrCardIn .18s ease-out;overflow:hidden">
+      <div style="border-top:3px solid var(--accent)"></div>
+      <div style="padding:14px 16px 16px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:9px"><span style="width:26px;height:26px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-2);display:flex;align-items:center;justify-content:center;font-size:13px">⚓</span><span style="font-size:15px;font-weight:700">HMAS Cairns</span></div>
+          <button onClick="{{ closeCard }}" style="border:none;background:none;cursor:pointer;color:var(--text-3);font-size:16px;padding:2px 4px" style-hover="color:var(--text)">✕</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:3px;font-family:'IBM Plex Mono',monospace">RAN — Navy fleet base</div>
+        <div style="margin-top:11px;padding:8px 11px;background:rgba(238,75,71,.12);border:1px solid rgba(238,75,71,.4);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--impact);font-weight:600"><span>▲</span>Within flood extent — wharf access limited</div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-2);line-height:1.5"><b style="color:var(--text)">Units based:</b> Patrol boat FEG, hydrographic det.<br><b style="color:var(--text)">Readiness:</b> <span style="color:var(--recovery);font-weight:600">82% · RESPONSE</span></div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ showBuilding }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:44%;top:52%;width:262px;background:var(--surface);border:1px solid var(--border-2);border-radius:9px;z-index:55;box-shadow:0 12px 32px -8px rgba(0,0,0,.6);animation:hadrCardIn .18s ease-out;overflow:hidden">
+      <div style="border-top:3px solid var(--d-severe)"></div>
+      <div style="padding:14px 16px 16px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <span style="font-size:14px;font-weight:700">Structure #A-2214</span>
+          <button onClick="{{ closeCard }}" style="border:none;background:none;cursor:pointer;color:var(--text-3);font-size:16px;padding:2px 4px" style-hover="color:var(--text)">✕</button>
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:5px 10px;border-radius:6px;background:rgba(238,75,71,.16);color:var(--d-severe);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.04em"><span style="width:9px;height:9px;background:var(--d-severe);transform:rotate(45deg)"></span>SEVERE DAMAGE</div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-2);line-height:1.6"><b style="color:var(--text)">Cause:</b> Flood + wind<br><b style="color:var(--text)">Structure:</b> 2 floors · 8.4 m<br><b style="color:var(--text)">Assessed by RDA:</b> <span style="font-family:'IBM Plex Mono',monospace">17 Dec 05:20</span></div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ showRoad }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:22%;top:60%;width:272px;background:var(--surface);border:1px solid var(--border-2);border-radius:9px;z-index:55;box-shadow:0 12px 32px -8px rgba(0,0,0,.6);animation:hadrCardIn .18s ease-out;overflow:hidden">
+      <div style="border-top:3px solid var(--road-closed)"></div>
+      <div style="padding:14px 16px 16px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <span style="font-size:14px;font-weight:700;line-height:1.2">Captain Cook Hwy</span>
+          <button onClick="{{ closeCard }}" style="border:none;background:none;cursor:pointer;color:var(--text-3);font-size:16px;padding:2px 4px" style-hover="color:var(--text)">✕</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px">Aeroglen to Smithfield</div>
+        <div style="display:inline-flex;align-items:center;gap:7px;margin-top:11px;padding:5px 10px;border-radius:6px;background:rgba(238,75,71,.16);color:var(--road-closed);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.04em">CLOSED — FLOODING</div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-2);line-height:1.6"><b style="color:var(--text)">Source:</b> QLDTRAFFIC<br><b style="color:var(--text)">Since:</b> <span style="font-family:'IBM Plex Mono',monospace">17 Dec 05:31</span></div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- SITREP DRAWER -->
+    <sc-if value="{{ sitrepOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeSitrep }}" style="position:absolute;inset:0;background:rgba(4,8,12,.4);z-index:70"></div>
+    <div style="position:absolute;right:0;top:0;bottom:0;width:480px;background:var(--surface);border-left:1px solid var(--border-2);z-index:71;display:flex;flex-direction:column;animation:hadrDrawerIn .22s cubic-bezier(0.2,0,0,1);box-shadow:-16px 0 40px -12px rgba(0,0,0,.55)">
+      <div style="flex:none;padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between">
+        <div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--text-3)">SITUATION REPORT</div>
+          <div style="font-size:18px;font-weight:700;margin-top:3px">TC JASPER — FNQ</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-2);margin-top:3px;font-variant-numeric:tabular-nums">{{ clockStr }}</div>
+        </div>
+        <button onClick="{{ closeSitrep }}" style="border:none;background:none;cursor:pointer;color:var(--text-3);font-size:18px;padding:2px 4px" style-hover="color:var(--text)">✕</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:8px 18px 18px">
+        <sc-if value="{{ genGenerating }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <sc-for list="{{ skeleton }}" as="s" hint-placeholder-count="5">
+            <div style="margin-top:18px">
+              <div style="height:11px;width:120px;border-radius:3px;background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface-3) 50%,var(--surface-2) 75%);background-size:400px 100%;animation:hadrShimmer 1.2s linear infinite"></div>
+              <div style="height:9px;margin-top:10px;border-radius:3px;background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface-3) 50%,var(--surface-2) 75%);background-size:400px 100%;animation:hadrShimmer 1.2s linear infinite"></div>
+              <div style="height:9px;margin-top:7px;width:88%;border-radius:3px;background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface-3) 50%,var(--surface-2) 75%);background-size:400px 100%;animation:hadrShimmer 1.2s linear infinite"></div>
+              <div style="height:9px;margin-top:7px;width:64%;border-radius:3px;background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface-3) 50%,var(--surface-2) 75%);background-size:400px 100%;animation:hadrShimmer 1.2s linear infinite"></div>
+            </div>
+          </sc-for>
+          <div style="margin-top:22px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-3);display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);animation:hadrLive 1s ease-in-out infinite"></span>Generating brief from live COP state…</div>
+        </div>
+        </sc-if>
+        <sc-if value="{{ genReady }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <sc-for list="{{ sitrepSections }}" as="sec" hint-placeholder-count="5">
+            <div style="margin-top:18px">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--accent);padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:8px">{{ sec.h }}</div>
+              <div style="font-size:13px;line-height:1.62;color:var(--text)">{{ sec.body }}</div>
+            </div>
+          </sc-for>
+          <div style="margin-top:22px;padding:10px 12px;background:rgba(242,164,19,.1);border:1px solid rgba(242,164,19,.35);border-radius:6px;display:flex;gap:8px;align-items:flex-start">
+            <span style="color:var(--warning);font-size:13px;line-height:1.3">▲</span>
+            <span style="font-size:11.5px;color:var(--warning);line-height:1.45">Generated by AI — verify against source feeds before release.</span>
+          </div>
+        </div>
+        </sc-if>
+      </div>
+      <div style="flex:none;padding:14px 18px;border-top:1px solid var(--border);display:flex;gap:10px">
+        <button onClick="{{ copySitrep }}" style="flex:1;border:1px solid var(--border-2);cursor:pointer;background:var(--surface-2);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.06em;padding:10px;border-radius:6px" style-hover="border-color:var(--accent)">{{ copyLabel }}</button>
+        <button onClick="{{ downloadSitrep }}" style="flex:1;border:none;cursor:pointer;background:var(--accent);color:#06121d;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.06em;padding:10px;border-radius:6px" style-hover="filter:brightness(1.08)">DOWNLOAD</button>
+      </div>
+    </div>
+    </sc-if>
+
+  </div>
+
+  <!-- CLASSIFICATION BOTTOM -->
+  <div style="height:20px;flex:none;background:var(--surface-3);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.34em;color:var(--text-2)">OFFICIAL</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1920,&quot;height&quot;:1080},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;'dark'|'light'&quot;,&quot;section&quot;:&quot;Defaults&quot;},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;replay&quot;,&quot;live&quot;],&quot;default&quot;:&quot;replay&quot;,&quot;tsType&quot;:&quot;'replay'|'live'&quot;,&quot;section&quot;:&quot;Defaults&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.rootRef = React.createRef();
+    this.timelineRef = React.createRef();
+    this.total = 20160;
+    this.themes = {
+      dark: {'--bg':'#0b0f14','--surface':'#131a22','--surface-2':'#1a232d','--surface-3':'#232f3b','--border':'#28323e','--border-2':'#3a4652','--text':'#e8eef4','--text-2':'#98a6b4','--text-3':'#63707d','--accent':'#5aa2e0','--accent-2':'#1d4a72','--watch':'#3f8ae0','--warning':'#f2a413','--impact':'#ee4b47','--recovery':'#37b96b','--live':'#ff4438','--d-none':'#7a8794','--d-minor':'#e8c02e','--d-moderate':'#f2851f','--d-severe':'#ee4b47','--d-destroyed':'#b32a86','--road-open':'#37b96b','--road-caution':'#f2a413','--road-closed':'#ee4b47'},
+      light: {'--bg':'#e8ecf1','--surface':'#ffffff','--surface-2':'#f1f5f9','--surface-3':'#e2e8ef','--border':'#d3dbe4','--border-2':'#b6c1cd','--text':'#141c25','--text-2':'#4a5763','--text-3':'#78848f','--accent':'#1f6fb2','--accent-2':'#bcd6ec','--watch':'#2563c9','--warning':'#b26a06','--impact':'#d1332e','--recovery':'#158048','--live':'#e0201a','--d-none':'#8a97a3','--d-minor':'#b58a09','--d-moderate':'#d1651a','--d-severe':'#d1332e','--d-destroyed':'#9a1f73','--road-open':'#158048','--road-caution':'#b26a06','--road-closed':'#d1332e'}
+    };
+    this.state = {
+      theme: this.props.theme || 'dark',
+      mode: this.props.mode || 'replay',
+      minutes: 17640,
+      playing: false,
+      speed: 4,
+      leftCollapsed: false,
+      basemap: 'satellite',
+      pitch3d: true,
+      openCard: null,
+      sitrepOpen: false,
+      sitrep: 'idle',
+      copied: false,
+      preset: 'FNQ',
+      cards: { kpi: true, ready: true, alerts: true },
+      layers: { track:true, wind:true, rain:false, flood:true, airports:true, roads:true, hospitals:true, ports:false, power:false, bases:true, damage:true, hex:false }
+    };
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  fmtClock(min) {
+    const WD = ['Tue','Wed','Thu','Fri','Sat','Sun','Mon','Tue','Wed','Thu','Fri','Sat','Sun','Mon','Tue'];
+    const di = Math.min(13, Math.floor(min/1440));
+    const rem = min - di*1440;
+    const hh = String(Math.floor(rem/60)).padStart(2,'0');
+    const mm = String(Math.floor(rem%60)).padStart(2,'0');
+    return `${WD[di]} ${5+di} Dec 2023 ${hh}:${mm} AEST`;
+  }
+  phaseOf(min) {
+    if (min < 8640) return {key:'WATCH', c:'var(--watch)', bg:'rgba(63,138,224,.16)'};
+    if (min < 11520) return {key:'WARNING', c:'var(--warning)', bg:'rgba(242,164,19,.16)'};
+    if (min < 18720) return {key:'IMPACT', c:'var(--impact)', bg:'rgba(238,75,71,.18)'};
+    return {key:'RECOVERY', c:'var(--recovery)', bg:'rgba(55,185,107,.16)'};
+  }
+  airportOpen(min) { return !(min >= 17280 && min < 19440); }
+  toggleTheme = () => this.setState(s => ({theme: s.theme==='dark'?'light':'dark'}));
+  setReplay = () => this.setState({mode:'replay'});
+  setLive = () => { clearInterval(this.timer); this.setState({mode:'live', playing:false}); };
+  toggleLeft = () => this.setState(s => ({leftCollapsed: !s.leftCollapsed}));
+  toggleLayer = (id) => this.setState(s => ({layers: {...s.layers, [id]: !s.layers[id]}}));
+  setSatellite = () => this.setState({basemap:'satellite'});
+  setDarkmap = () => this.setState({basemap:'dark'});
+  togglePitch = () => this.setState(s => ({pitch3d: !s.pitch3d}));
+  toggleKpi = () => this.setState(s => ({cards:{...s.cards, kpi:!s.cards.kpi}}));
+  toggleReady = () => this.setState(s => ({cards:{...s.cards, ready:!s.cards.ready}}));
+  toggleAlerts = () => this.setState(s => ({cards:{...s.cards, alerts:!s.cards.alerts}}));
+  openAirport = () => this.setState({openCard:'airport'});
+  openBase = () => this.setState({openCard:'base'});
+  openBuilding = () => this.setState({openCard:'building'});
+  openRoad = () => this.setState({openCard:'road'});
+  closeCard = () => this.setState({openCard:null});
+  togglePlay = () => {
+    if (this.state.playing) { clearInterval(this.timer); this.setState({playing:false}); return; }
+    this.timer = setInterval(() => {
+      this.setState(s => {
+        let m = s.minutes + s.speed*24;
+        if (m >= this.total) { clearInterval(this.timer); return {minutes:this.total, playing:false}; }
+        return {minutes:m};
+      });
+    }, 90);
+    this.setState({playing:true});
+  };
+  cycleSpeed = () => this.setState(s => ({speed: s.speed===1?4:s.speed===4?12:1}));
+  setFromEvent = (e) => {
+    const el = this.timelineRef.current; if (!el) return;
+    const r = el.getBoundingClientRect();
+    let f = (e.clientX - r.left)/r.width; f = Math.max(0, Math.min(1, f));
+    this.setState({minutes: Math.round(f*this.total)});
+  };
+  onTimelineDown = (e) => {
+    this.setFromEvent(e);
+    const mv = (ev)=>this.setFromEvent(ev);
+    const up = ()=>{ window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); };
+    window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up);
+  };
+  jumpTo = (min) => this.setState({minutes:min});
+  setPreset = (p) => this.setState({preset:p});
+  genSitrep = () => {
+    this.setState({sitrepOpen:true, sitrep:'generating'});
+    clearTimeout(this._sit);
+    this._sit = setTimeout(()=>this.setState({sitrep:'ready'}), 1900);
+  };
+  closeSitrep = () => this.setState({sitrepOpen:false});
+  copySitrep = () => { this.setState({copied:true}); clearTimeout(this._cp); this._cp = setTimeout(()=>this.setState({copied:false}), 1600); };
+  downloadSitrep = () => {};
+
+  renderVals() {
+    const s = this.state;
+    const ph = this.phaseOf(s.minutes);
+    const apOpen = this.airportOpen(s.minutes);
+    const disp = (v) => v ? 'block' : 'none';
+    const rootStyle = {position:'relative',width:'1920px',height:'1080px',background:'var(--bg)',color:'var(--text)',fontFamily:"'IBM Plex Sans',system-ui,sans-serif",display:'flex',flexDirection:'column',overflow:'hidden', ...this.themes[s.theme]};
+    const mkLayer = (id, label, swatchBg, swatchBorder) => ({
+      id, label,
+      swatchBg, swatchBorder: swatchBorder || 'none',
+      trackBg: s.layers[id] ? 'var(--accent)' : 'var(--border-2)',
+      knobLeft: s.layers[id] ? '14px' : '2px',
+      onToggle: () => this.toggleLayer(id)
+    });
+    const layerGroups = [
+      { name:'HAZARD', items:[
+        mkLayer('track','Cyclone track & cone','var(--impact)'),
+        mkLayer('wind','Wind field','#8b7fd6'),
+        mkLayer('rain','Rainfall','#14b8a6'),
+        mkLayer('flood','Flood extent','rgba(47,128,237,.55)','1px solid #5aa2e0') ]},
+      { name:'INFRASTRUCTURE', items:[
+        mkLayer('airports','Airports & runways','var(--accent)'),
+        mkLayer('roads','Roads (by status)','linear-gradient(90deg,var(--road-open) 33%,var(--road-caution) 33% 66%,var(--road-closed) 66%)'),
+        mkLayer('hospitals','Hospitals','#fff','1px solid var(--border-2)'),
+        mkLayer('ports','Ports','#22b8cf'),
+        mkLayer('power','Power','#e8c02e') ]},
+      { name:'DEFENCE ESTATE', items:[
+        mkLayer('bases','Bases & facilities','var(--text)') ]},
+      { name:'IMPACT', items:[
+        mkLayer('damage','Building damage (3D)','linear-gradient(90deg,var(--d-minor),var(--d-severe),var(--d-destroyed))'),
+        mkLayer('hex','Damage density (hex)','linear-gradient(90deg,var(--d-minor),var(--d-moderate),var(--d-destroyed))') ]}
+    ];
+    const kpis = [
+      {num:'~168,000', label:'Population in warning area', delta:'', deltaColor:'var(--text-3)', numColor:'var(--text)'},
+      {num:'14', label:'Roads cut', delta:'▲ 3 since 03:00', deltaColor:'var(--impact)', numColor:'var(--text)'},
+      {num:'1 / 2', label:'Runways open', delta:'▼ from 2', deltaColor:'var(--impact)', numColor:'var(--warning)'},
+      {num:'3,412', label:'Buildings damaged', delta:'▲ 240 since 03:00', deltaColor:'var(--impact)', numColor:'var(--text)'},
+      {num:'6 / 8', label:'Units ready', delta:'▲ 1 since 03:00', deltaColor:'var(--recovery)', numColor:'var(--recovery)'},
+      {num:'7', label:'Warnings active', delta:'▲ 2 since 03:00', deltaColor:'var(--impact)', numColor:'var(--impact)'}
+    ];
+    const barColor = (p) => p>=85 ? 'var(--recovery)' : p>=75 ? 'var(--warning)' : 'var(--impact)';
+    const postureDot = (p) => ({BASELINE:'var(--text-3)', WARNING:'var(--warning)', RESPONSE:'var(--accent)', SURGE:'var(--impact)'}[p]);
+    const U = [
+      ['HMAS Cairns','Navy fleet base, Cairns',82,'RESPONSE','Wharf access limited — flood'],
+      ['51 FNQR','Porton Barracks, Cairns',91,'SURGE','Local recon tasking'],
+      ['3 Bde (3 CSSB)','Lavarack Barracks, Townsville',88,'RESPONSE','Convoy staging'],
+      ['5 Avn Regt','Townsville',74,'RESPONSE','2 × MRH-90 tasked'],
+      ['27 SQN','RAAF Townsville',90,'RESPONSE','Airfield ops normal'],
+      ['35 SQN (C-27J)','Amberley',93,'WARNING','On 12 hr notice to move'],
+      ['36 SQN (C-17A)','Amberley',95,'WARNING','On 24 hr notice to move'],
+      ['JTF 664 HQ','Townsville',null,'RESPONSE','Coordinating DACC tasks']
+    ];
+    const units = U.map(([name,base,pct,posture,constraint]) => ({
+      name, base, posture, constraint,
+      postureDot: postureDot(posture),
+      barW: pct==null ? '100%' : pct+'%',
+      barBg: pct==null ? 'var(--border-2)' : barColor(pct),
+      pctLabel: pct==null ? 'stood up' : pct+'%',
+      pctColor: pct==null ? 'var(--text-3)' : barColor(pct),
+      pctSize: pct==null ? '9px' : '11px'
+    }));
+    const AL = [
+      ['BOM','05:47','Major Flood Warning: Barron River — record level expected at Myola','warn',true],
+      ['QLDTRAFFIC','05:31','Captain Cook Hwy CLOSED — flooding, Aeroglen to Smithfield','road',true],
+      ['BOM','04:58','Severe Weather Warning: heavy rainfall, FNQ coast and tablelands','warn',true],
+      ['QLDTRAFFIC','04:12','Kennedy Hwy (Kuranda Range) CLOSED — landslip','road',false],
+      ['BOM','03:00','Flood Warning: Daintree, Mossman and Mowbray Rivers','warn',false]
+    ];
+    const alerts = AL.map(([source,time,headline,kind,current],i) => ({
+      source, time, headline,
+      glyph: kind==='road' ? '⏺' : '▲',
+      glyphColor: current ? (kind==='road'?'var(--road-closed)':'var(--impact)') : 'var(--text-3)',
+      srcBg: source==='BOM' ? 'rgba(63,138,224,.16)' : 'rgba(242,164,19,.16)',
+      srcColor: source==='BOM' ? 'var(--accent)' : 'var(--warning)',
+      headlineColor: current ? 'var(--text)' : 'var(--text-2)',
+      rowBg: i===0 ? 'rgba(238,75,71,.06)' : 'transparent',
+      rowBorder: i===0 ? '2px solid var(--impact)' : '2px solid transparent'
+    }));
+    const AC = [['C-17A Globemaster III','3,000 m'],['C-130J Hercules','1,100 m'],['KC-30A MRTT','2,400 m'],['C-27J Spartan','900 m']];
+    const aircraft = AC.map(([name,req]) => ({
+      name, req,
+      glyph: apOpen ? '✓' : '✕',
+      glyphBg: apOpen ? 'rgba(55,185,107,.16)' : 'rgba(238,75,71,.16)',
+      glyphColor: apOpen ? 'var(--recovery)' : 'var(--impact)'
+    }));
+    const legendMap = {
+      track:{label:'Cyclone track', bg:'var(--impact)', border:'none'},
+      flood:{label:'Flood extent', bg:'rgba(47,128,237,.55)', border:'1px solid #5aa2e0'},
+      wind:{label:'Wind field', bg:'#8b7fd6', border:'none'},
+      damage:{label:'Damage severe', bg:'var(--d-severe)', border:'none'},
+      roads:{label:'Road closed', bg:'var(--road-closed)', border:'none'},
+      bases:{label:'Defence base', bg:'var(--text)', border:'none'}
+    };
+    const legendChips = Object.keys(legendMap).filter(k=>s.layers[k]).map(k=>legendMap[k]);
+    const btn = (active) => active
+      ? {bg:'var(--accent-2)', fg:'var(--text)', bc:'var(--accent)'}
+      : {bg:'var(--surface-2)', fg:'var(--text-2)', bc:'var(--border)'};
+    const presets = ['FNQ','Cairns','Airport','Townsville'].map(p => {
+      const b = btn(s.preset===p);
+      return { label:p, onClick:()=>this.setPreset(p), bg:b.bg, fg:b.fg, bc:b.bc };
+    });
+    const sat = btn(s.basemap==='satellite'), drk = btn(s.basemap==='dark');
+    const events = [
+      {label:'Landfall — Wujal Wujal (13 Dec)', min:11760},
+      {label:'Cairns Airport CLOSED (17 Dec)', min:17280},
+      {label:'Barron River peak (17–18 Dec)', min:18360},
+      {label:'Airport reopened (18 Dec)', min:19440}
+    ].map(e => ({label:e.label, onClick:(ev)=>{ if(ev&&ev.stopPropagation)ev.stopPropagation(); this.jumpTo(e.min); }, left:(e.min/this.total*100)+'%'}));
+    const sitrepSections = [
+      {h:'SITUATION', body:'TC Jasper (Category 2 at landfall) crossed the coast near Wujal Wujal on 13 Dec. Slow-moving remnant low is driving record rainfall across Far North Queensland. Cairns, Douglas and Cassowary Coast LGAs affected.'},
+      {h:'WEATHER', body:'Barron River at Myola — major flood, record level expected 17–18 Dec. Severe Weather Warning current for heavy rainfall over coast and tablelands. Crosswind 42 kt reported at YBCS.'},
+      {h:'INFRASTRUCTURE', body:'Cairns Airport (YBCS) CLOSED — flooding plus crosswind. 14 road segments cut incl. Captain Cook and Kennedy Highways. Townsville (YBTL) OPEN — designated staging base. 3,412 buildings assessed as damaged.'},
+      {h:'FORCE ELEMENTS', body:'JTF 664 stood up 14 Dec (Townsville). 6 of 8 units at RESPONSE posture or higher. 5 Avn Regt — 2 × MRH-90 tasked. 35 & 36 SQN on notice to move, Amberley.'},
+      {h:'ASSESSMENT', body:'Air LOC into Cairns denied until Barron River recedes (est. 18 Dec). Recommend staging DACC via YBTL with rotary insertion to isolated communities (Wujal Wujal, Degarra). Reassess YBCS suitability at 18 Dec 12:00.'}
+    ];
+    return {
+      rootStyle, timelineRef: this.timelineRef,
+      clockStr: this.fmtClock(s.minutes),
+      themeLabel: s.theme==='dark' ? 'LIGHT' : 'DARK',
+      phaseLabel: ph.key, phaseChipBg: ph.bg, phaseColor: ph.c,
+      isReplay: s.mode==='replay', isLive: s.mode==='live',
+      replayBg: s.mode==='replay' ? 'var(--accent)' : 'transparent',
+      replayFg: s.mode==='replay' ? '#06121d' : 'var(--text-2)',
+      liveBg: s.mode==='live' ? 'var(--live)' : 'transparent',
+      liveFg: s.mode==='live' ? '#fff' : 'var(--text-2)',
+      liveDotBg: s.mode==='live' ? '#fff' : 'var(--text-3)',
+      liveDotAnim: s.mode==='live' ? 'hadrLive 1s ease-in-out infinite' : 'none',
+      setReplay:this.setReplay, setLive:this.setLive, toggleTheme:this.toggleTheme, genSitrep:this.genSitrep,
+      leftExpanded: !s.leftCollapsed, leftCollapsed: s.leftCollapsed, toggleLeft:this.toggleLeft,
+      layerGroups,
+      railGlyphs: [{name:'Hazard',abbr:'HZ'},{name:'Infrastructure',abbr:'IN'},{name:'Defence estate',abbr:'DE'},{name:'Impact',abbr:'IM'}],
+      satBg:sat.bg, satFg:sat.fg, satBc:sat.bc, darkBg:drk.bg, darkFg:drk.fg, darkBc:drk.bc,
+      setSatellite:this.setSatellite, setDarkmap:this.setDarkmap,
+      pitchLabel: s.pitch3d?'3D':'2D', togglePitch:this.togglePitch,
+      presets,
+      trackDisp: disp(s.layers.track), windDisp: disp(s.layers.wind), floodDisp: disp(s.layers.flood),
+      damageDisp: disp(s.layers.damage), roadsDisp: disp(s.layers.roads),
+      airportsDisp: s.layers.airports?'flex':'none', basesDisp: s.layers.bases?'flex':'none',
+      apRingColor: apOpen?'var(--recovery)':'var(--impact)', apGlyphColor: apOpen?'var(--recovery)':'var(--impact)',
+      kpiOpen:s.cards.kpi, readyOpen:s.cards.ready, alertsOpen:s.cards.alerts,
+      kpiChevron:s.cards.kpi?'▾':'▸', readyChevron:s.cards.ready?'▾':'▸', alertsChevron:s.cards.alerts?'▾':'▸',
+      toggleKpi:this.toggleKpi, toggleReady:this.toggleReady, toggleAlerts:this.toggleAlerts,
+      kpis, units, alerts, legendChips,
+      playGlyph: s.playing ? '❚❚' : '▶', speedLabel: s.speed+'×',
+      togglePlay:this.togglePlay, cycleSpeed:this.cycleSpeed, onTimelineDown:this.onTimelineDown,
+      events, playheadLeft: (s.minutes/this.total*100)+'%',
+      showAirport:s.openCard==='airport', showBase:s.openCard==='base', showBuilding:s.openCard==='building', showRoad:s.openCard==='road',
+      openAirport:this.openAirport, openBase:this.openBase, openBuilding:this.openBuilding, openRoad:this.openRoad, closeCard:this.closeCard,
+      apAccentColor: apOpen?'var(--recovery)':'var(--impact)',
+      apBadgeBg: apOpen ? 'rgba(55,185,107,.16)' : 'rgba(238,75,71,.18)',
+      apBadgeColor: apOpen ? 'var(--recovery)' : 'var(--impact)',
+      apBadgeText: apOpen ? 'OPEN' : 'CLOSED — flooding, crosswind 42 kt',
+      aircraft,
+      sitrepOpen:s.sitrepOpen, genGenerating:s.sitrep==='generating', genReady:s.sitrep==='ready',
+      skeleton:[1,2,3,4,5], sitrepSections,
+      copyLabel: s.copied ? 'COPIED ✓' : 'COPY',
+      closeSitrep:this.closeSitrep, copySitrep:this.copySitrep, downloadSitrep:this.downloadSitrep
+    };
+  }
+}
+</script>
+</body>
+</html>

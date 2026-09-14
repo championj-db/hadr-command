@@ -1,0 +1,9 @@
+command: ["python", "-m", "backend.main"]
+
+env:
+  - name: HADR_SCHEMA
+    value: "au_pubsec_catalog.hadr"
+  - name: HADR_SITREP_ENDPOINT
+    value: "databricks-claude-sonnet-4-6"
+  - name: DATABRICKS_WAREHOUSE_ID
+    valueFrom: "sql-warehouse"

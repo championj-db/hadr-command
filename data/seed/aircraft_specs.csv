@@ -1,0 +1,6 @@
+aircraft_type,designation,role,min_runway_m,max_payload_kg,max_pax,ferry_range_km,cruise_speed_kt,notes
+C-27J,Spartan,Battlefield airlift,680,11000,60,4260,325,"Short/unprepared-strip capable; ideal for austere FNQ community resupply (35 SQN)"
+C-130J,Hercules,Tactical airlift,915,19000,92,5250,355,"Workhorse tactical transport; can use semi-prepared strips; bulk relief & pax movement (37 SQN)"
+C-17A,Globemaster III,Strategic airlift,2300,77500,102,4480,450,"Heavy/outsize cargo, vehicles & rotary lift; needs long sealed runway e.g. YBCS/YBTL (36 SQN)"
+KC-30A,MRTT,Air-to-air refuelling / strategic transport,2500,45000,270,14800,470,"Multi-role tanker transport; mass pax evacuation & long-haul sustainment (33 SQN)"
+MRH-90,Taipan,Medium rotary lift,0,4000,18,800,140,"Rotary — no runway required; troop/relief lift & aeromedical (5 Avn Regt); helipad/LZ operations"
