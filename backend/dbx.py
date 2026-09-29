@@ -115,6 +115,73 @@ def chat(messages: list[dict], max_tokens: int = 1500) -> str:
     return resp.choices[0].message.content
 
 
+def genie_ask(space_id: str, question: str, conversation_id: str | None = None) -> dict:
+    """Ask a Genie space a question (blocking) and return a structured answer.
+
+    Starts a new conversation when conversation_id is None, otherwise continues the
+    existing one so Genie keeps context for follow-ups. Runs as whatever principal
+    backs ws() — the app service principal inside Databricks Apps.
+    """
+    g = ws().genie
+    if conversation_id:
+        msg = g.create_message_and_wait(space_id, conversation_id, question)
+    else:
+        msg = g.start_conversation_and_wait(space_id, question)
+
+    conv_id = msg.conversation_id
+    msg_id = msg.message_id
+    status = msg.status.value if msg.status else "UNKNOWN"
+
+    out: dict = {
+        "conversation_id": conv_id,
+        "message_id": msg_id,
+        "status": status,
+        "text": None,
+        "sql": None,
+        "columns": None,
+        "rows": None,
+        "row_count": 0,
+        "truncated": False,
+        "error": msg.error.error if getattr(msg, "error", None) else None,
+    }
+
+    for att in msg.attachments or []:
+        if getattr(att, "text", None) and att.text.content and not out["text"]:
+            out["text"] = att.text.content
+        if getattr(att, "query", None) and not out["sql"]:
+            out["sql"] = att.query.query
+            if att.query.description and not out["text"]:
+                out["text"] = att.query.description
+            try:
+                sr = _query_result(g, space_id, conv_id, msg_id, getattr(att, "attachment_id", None))
+                if sr and sr.manifest and sr.manifest.schema:
+                    out["columns"] = [c.name for c in sr.manifest.schema.columns]
+                if sr and sr.result and sr.result.data_array:
+                    data = sr.result.data_array
+                    cap = 500
+                    out["truncated"] = len(data) > cap
+                    out["rows"] = data[:cap]
+                    out["row_count"] = len(data)
+            except Exception as e:  # result may be unavailable (e.g. clarifying reply)
+                log.warning("genie query-result fetch failed: %s", e)
+
+    return out
+
+
+def _query_result(g, space_id: str, conv_id: str, msg_id: str, attachment_id: str | None):
+    """Fetch a Genie query attachment's result rows.
+
+    The per-attachment endpoint is the one that actually returns inline data_array;
+    the older message-level get_message_query_result returns an empty result for
+    multi-attachment messages. Fall back to it only when there is no attachment id.
+    """
+    if attachment_id:
+        res = g.get_message_query_result_by_attachment(space_id, conv_id, msg_id, attachment_id)
+    else:
+        res = g.get_message_query_result(space_id, conv_id, msg_id)
+    return res.statement_response
+
+
 def parse_json_col(rows: list[dict], col: str) -> None:
     """In-place parse of a JSON string column."""
     for r in rows:

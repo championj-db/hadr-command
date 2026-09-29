@@ -49,6 +49,29 @@ export const api = {
     if (!r.ok) throw new Error(`sitrep: ${r.status} ${await r.text()}`)
     return (await r.json()) as { sitrep: string; generated_by: string; caveat: string }
   },
+  genie: async (body: { question: string; conversation_id?: string | null }) => {
+    const r = await fetch('/api/genie/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    if (!r.ok) throw new Error(`genie: ${r.status} ${await r.text()}`)
+    return (await r.json()) as GenieAnswer
+  },
+}
+
+export interface GenieAnswer {
+  conversation_id: string
+  message_id: string
+  status: string
+  text: string | null
+  sql: string | null
+  columns: string[] | null
+  rows: string[][] | null
+  row_count: number
+  truncated: boolean
+  error: string | null
+  caveat: string
 }
 
 /** Rebuild cumulative per-building damage state from the delta frames. */

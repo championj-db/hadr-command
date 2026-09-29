@@ -15,6 +15,10 @@ PROFILE = os.getenv("DATABRICKS_CONFIG_PROFILE")
 # FMAPI chat endpoint for SITREP generation.
 SITREP_ENDPOINT = os.getenv("HADR_SITREP_ENDPOINT", "databricks-claude-sonnet-4-6")
 
+# Genie space backing the natural-language "Ask the COP" assistant. Queried as the
+# app service principal (which must hold CAN_RUN on the space).
+GENIE_SPACE_ID = os.getenv("HADR_GENIE_SPACE_ID", "01f1bb96e5eb19768ade581142811177")
+
 # Live pollers.
 QLDTRAFFIC_URL = os.getenv(
     "HADR_QLDTRAFFIC_URL",

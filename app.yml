@@ -5,5 +5,7 @@ env:
     value: "au_pubsec_catalog.hadr"
   - name: HADR_SITREP_ENDPOINT
     value: "databricks-claude-sonnet-4-6"
+  - name: HADR_GENIE_SPACE_ID
+    value: "01f1bb96e5eb19768ade581142811177"
   - name: DATABRICKS_WAREHOUSE_ID
     valueFrom: "sql-warehouse"
