@@ -10,6 +10,7 @@ import TimeScrubber from './components/TimeScrubber'
 import SitrepDrawer from './components/SitrepDrawer'
 import ClickCard from './components/ClickCard'
 import FloatingControls from './components/FloatingControls'
+import GenieChat from './components/GenieChat'
 
 function Shell() {
   const { ready, loadError } = useHadr()
@@ -84,6 +85,7 @@ function Shell() {
 
         <ClickCard />
         <SitrepDrawer open={sitrepOpen} onClose={() => setSitrepOpen(false)} />
+        <GenieChat />
       </div>
       </MapViewProvider>
 

@@ -24,6 +24,15 @@ databricks sync . "$SRC" -p "$PROFILE" \
   --exclude 'ui/public/**' --exclude 'data/cache/**' --exclude '**/__pycache__/**' \
   --exclude 'docs/**' --exclude 'design/**' --exclude '.git/**' --full
 
+# `databricks sync` walks the git repo and honours .gitignore, which ignores dist/,
+# so the built SPA in ui/dist is skipped by the sync above (and --full clears any
+# stale copy). Stage it OUTSIDE the repo and sync from there so the app serves it.
+echo "==> Syncing built UI (ui/dist) via staging dir"
+STAGE=$(mktemp -d "${TMPDIR:-/tmp}/hadr_dist.XXXXXX")
+trap 'rm -rf "$STAGE"' EXIT
+cp -R ui/dist/. "$STAGE/"
+databricks sync "$STAGE" "$SRC/ui/dist" -p "$PROFILE" --full
+
 echo "==> Deploying"
 databricks apps deploy "$APP" --source-code-path "$SRC" -p "$PROFILE"
 

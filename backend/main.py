@@ -14,7 +14,7 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import config, dbx, frames, pollers, sitrep
+from . import config, dbx, frames, genie, pollers, sitrep
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 log = logging.getLogger("hadr")
@@ -135,6 +135,23 @@ def generate_sitrep(req: SitrepRequest) -> dict:
     except Exception as e:
         log.exception("sitrep generation failed")
         raise HTTPException(status_code=502, detail=f"SITREP generation failed: {e}")
+
+
+class GenieRequest(BaseModel):
+    question: str
+    conversation_id: str | None = None
+
+
+@app.post("/api/genie/ask")
+def genie_ask(req: GenieRequest) -> dict:
+    q = (req.question or "").strip()
+    if not q:
+        raise HTTPException(status_code=400, detail="question is required")
+    try:
+        return genie.ask(q, conversation_id=req.conversation_id)
+    except Exception as e:
+        log.exception("genie ask failed")
+        raise HTTPException(status_code=502, detail=f"Genie query failed: {e}")
 
 
 # Serve the built UI last so /api keeps precedence.
